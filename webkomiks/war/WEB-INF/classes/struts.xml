@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+"http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+
+	<!-- to exclude URL for GAE -->
+	<constant name="struts.action.excludePattern" value="/,/_ah/.*,/upload/.*" />
+    
+	<!-- development mode -->
+	<constant name="struts.devMode" value="true" />
+
+	<!-- allow static method access -->
+	<constant name="struts.ognl.allowStaticMethodAccess" value="true"/> 
+
+	<constant name="struts.enable.SlashesInActionNames" value="true"/>
+	<constant name="struts.mapper.alwaysSelectFullNamespace" value="false"/>
+	
+	
+	<package name="comics" namespace="/" extends="struts-default">
+	    
+		<!-- global result -->
+		<global-results>
+			<result name="login" type="redirectAction">
+				<param name="namespace">/comics</param>
+            	<param name="actionName">list</param>
+			</result>
+			<result name="none" type="redirectAction">
+				<param name="namespace">/comics</param>
+            	<param name="actionName">list</param>
+			</result>
+		</global-results>
+		
+		
+	    <!-- go to admin console -->
+		<action name="admin">
+			<result>/admin/index.jsp</result>
+		</action>
+		
+		<!-- google login -->
+		<action name="login" class="comics.user.LogAction">
+			<result>/user/home.jsp</result>   
+			<result name="update">/user/update.jsp</result>
+		</action>
+		
+		<!-- logout -->
+		<action name="logout" class="comics.user.LogAction" method="logout">
+			<result>/user/home.jsp</result>   
+			<result name="update">/user/update.jsp</result>
+		</action>
+		
+	</package>
+	
+	
+	<package name="account" namespace="/account" extends="comics">
+	    <action name="view" class="comics.user.UserAction">
+			<result>/user/update.jsp</result>
+		</action>
+		<action name="update" class="comics.user.UserAction" method="update">
+			<result>/user/home.jsp</result>
+			<result name="input">/user/update.jsp</result>
+		</action>
+	</package>
+	
+	
+	<!-- comics entry -->
+	<package name="comicsEntry" namespace="/comics" extends="comics">
+		<!-- new comics -->
+		<action name="list" class="comics.comics.ComicsAction" method="list">
+		    <result>/comics/list.jsp</result>
+		</action>
+		
+		<!-- view comics for adding chapters -->
+		<action name="update/*" class="comics.comics.ComicsAction" method="view">
+		    <param name="key">{1}</param>
+		    <result>/comics/comics-chapters.jsp</result>
+		</action>
+			
+		<!-- comics by a logged in user -->
+		<action name="mycomics" class="comics.comics.ComicsAction" method="myComics">
+		    <result>/comics/my-comics.jsp</result>
+		</action>
+		
+		<!-- delete a comics -->
+		<action name="delete/*" class="comics.comics.ComicsAction" method="delete">
+		    <param name="key">{1}</param>
+		    <result type="redirectAction">
+			    <param name="actionName">mycomics</param>
+				<param name="namespace">/comics</param>    
+			</result>
+		</action>
+		
+		<!-- view comics chapter publicly -->
+		<action name="chapter" class="comics.comics.ComicsAction" method="readChapter">
+		    <result>/comics/comics.jsp</result>
+		</action>
+		
+		<!-- view comics publicly -->
+		<action name="*/*" class="comics.comics.ComicsAction" method="read">
+		    <param name="comics.random">{1}</param>
+			<param name="comics.url">{2}</param>
+		    <result>/comics/comics.jsp</result>
+		</action>
+		
+	</package>
+	
+	
+	<!-- comics' chapter -->
+	<package name="chapter" namespace="/chapter" extends="comics">
+		<action name="add" class="comics.comics.ChapterAction" method="add">
+			<result type="redirectAction">
+			    <param name="parse">true</param>
+			    <param name="key">${key}</param>
+			    <param name="actionName">update</param>
+				<param name="namespace">/comics</param>    
+			</result>
+		</action>
+		
+		<!-- view chapter for adding pages -->
+		<action name="update/*" class="comics.comics.ChapterAction" method="view">
+		    <param name="key">{1}</param>
+		    <result>/comics/comics-pages.jsp</result>
+		</action>
+					
+		<!-- save chapter pages -->
+		<action name="save" class="comics.comics.ChapterAction" method="save">
+			<result type="redirectAction">
+			    <param name="parse">true</param>
+			    <param name="key">${key}</param>
+			    <param name="actionName">update</param>
+				<param name="namespace">/chapter</param>    
+			</result>
+		</action>
+		
+		<!-- delete chapter-->
+		<action name="delete/*" class="comics.comics.ChapterAction" method="delete">
+		    <param name="key">{1}</param>
+			<result type="redirectAction">
+			    <param name="parse">true</param>
+			    <param name="key">${key}</param>
+			    <param name="actionName">update</param>
+				<param name="namespace">/comics</param>    
+			</result>
+		</action>
+		
+		<action name="editInfo" class="comics.comics.ChapterAction" method="update">
+		    <result type="redirectAction">
+			    <param name="parse">true</param>
+			    <param name="key">${key}</param>
+			    <param name="actionName">update</param>
+				<param name="namespace">/chapter</param>    
+			</result>
+		</action>
+		
+	</package>
+	
+	
+	<!-- user channel -->
+	<package name="channel" namespace="/user" extends="comics">
+		<action name="*" class="comics.channel.ChannelAction">
+		    <param name="userName">{1}</param>
+		    <result>/channel/channel.jsp</result>
+		</action>
+	</package>
+	
+	
+	<!-- JSON result -->
+ 	<package name="json" namespace="/comics" extends="json-default">
+ 	    <!-- new comics at home page-->
+		<action name="nextList" class="comics.comics.ComicsAction" method="nextList">
+			<result type="json">
+				<param name="excludeProperties">comics, key, chapterKey, chapter</param>
+		    </result>
+		</action>
+		
+		<!-- comics by a user -->
+		<action name="nextListByUser" class="comics.channel.ChannelAction" method="nextList">
+			<result type="json">
+				<param name="excludeProperties">comics,user,userName</param>
+		    </result>
+		</action>
+	</package>
+	
+ 	<include file="admin.xml"></include>
+
+</struts>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+"http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+
+	<!-- comics genre -->
+	<package name="genre" namespace="/admin/genre" extends="struts-default">
+		<interceptors>
+		    <interceptor-stack name="storeStack">
+				<interceptor-ref name="defaultStack"/>
+				<interceptor-ref name="store">
+					<param name="operationMode">STORE</param>
+				</interceptor-ref>
+			</interceptor-stack>
+
+			<interceptor-stack name="retrieveStack">
+				<interceptor-ref name="defaultStack"/>
+				<interceptor-ref name="store">
+					<param name="operationMode">RETRIEVE</param>
+				</interceptor-ref>
+			</interceptor-stack>
+       </interceptors>
+       
+		<!-- global result -->
+		<global-results>
+			<result name="genreList" type="redirectAction">
+			    <param name="namespace">/admin/genre</param>
+            	<param name="actionName">list</param>
+			</result>
+		</global-results>
+		
+		
+		<action name="add" class="comics.admin.genre.GenreAction" method="add">
+		    <interceptor-ref name="storeStack" />
+			<result type="redirectAction">
+				<param name="namespace">/admin/genre</param>
+            	<param name="actionName">list</param>
+			</result>
+			<result name="input">/admin/genre/new.jsp</result>
+		</action>
+		
+		<action name="list" class="comics.admin.genre.GenreAction" method="list">
+		    <interceptor-ref name="retrieveStack" />
+			<result>/admin/genre/list.jsp</result>
+		</action>
+		
+		<action name="view/*" class="comics.admin.genre.GenreAction" method="view">
+			<interceptor-ref name="storeStack" />
+			<param name="genreName">{1}</param>
+			<result>/admin/genre/update.jsp</result>
+		</action>
+		
+		<action name="update" class="comics.admin.genre.GenreAction" method="update">
+		    <interceptor-ref name="storeStack" />
+			<result type="redirectAction">
+				<param name="namespace">/admin/genre</param>
+            	<param name="actionName">list</param>
+			</result>
+		</action>
+		
+		<action name="delete/*" class="comics.admin.genre.GenreAction" method="delete">
+		    <interceptor-ref name="storeStack" />
+		    <param name="genreName">{1}</param>
+			<result type="redirectAction">
+				<param name="namespace">/admin/genre</param>
+            	<param name="actionName">list</param>
+			</result>
+		</action>
+		
+	</package>
+
+	<package name="development" namespace="/admin" extends="struts-default">
+		<action name="resetFTS" class="comics.admin.AdminConsole" method="resetFTS">
+			<result>/admin/index.jsp</result>
+		</action>
+	</package>
+</struts>

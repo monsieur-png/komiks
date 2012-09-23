@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<datastore-indexes autoGenerate="true">
+    
+	<!-- Used 23 times in query history -->
+    <datastore-index kind="Chapter" ancestor="true" source="auto">
+        <property name="order" direction="asc"/>
+    </datastore-index>
+
+    <!-- Used 26 times in query history -->
+    <datastore-index kind="Page" ancestor="true" source="auto">
+        <property name="order" direction="asc"/>
+    </datastore-index>
+
+</datastore-indexes>

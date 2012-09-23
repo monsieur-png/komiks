@@ -1,0 +1,48 @@
+#header{
+	text-align: center;
+}
+
+.container{
+	margin-top: 50px;
+}
+
+textarea{
+	resize: none;
+}
+/*comics item*/
+.comicsItem{
+	padding-bottom: 20px;
+	margin-bottom: 30px;
+	border-bottom: 1px solid #f2f2f2;
+}
+.comicsItem img{
+	padding-right: 10px;
+	float: left;
+}
+
+
+/*loading of next items*/
+#loading{
+	margin-top: 20px;
+	height: 30px;
+}
+.loading{
+	background: #f2f2f2 url('/image/loading.gif') center no-repeat;
+}
+
+.actionMessage ul li, .actionError ul li{
+	list-style: none;
+}
+
+
+/*signinForm*/
+#signinForm{
+	padding: 15px;
+	padding-bottom: 0px;
+}
+#signinForm input[type=text]{
+	margin-bottom: 15px;
+}
+#signinForm input[type=submit]{
+	width: 100%;
+}
