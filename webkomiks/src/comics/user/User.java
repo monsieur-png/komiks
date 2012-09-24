@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 import com.google.appengine.api.datastore.Text;
 import comics.comics.Comics;
@@ -33,14 +34,16 @@ public class User {
 	private int comicsCount = 0;
 	
 	@OneToMany(targetEntity=Comics.class, mappedBy="user", fetch=FetchType.LAZY, cascade={CascadeType.PERSIST, CascadeType.REMOVE})
+	@OrderBy("dateAdded DESC")
 	private List<Comics> comics = null;
 	
 	
 	public User() {	}
 	
-	public User(String email, String userName) {
+	public User(String email, String userName, String fullName) {
 		this.email = email;
 		this.userName = userName;
+		this.fullName = fullName;
 		Date date = new Date();
 		this.dateCreated = date;
 		this.lastLogin = date;

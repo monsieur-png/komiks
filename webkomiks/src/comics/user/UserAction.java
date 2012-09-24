@@ -28,40 +28,31 @@ public class UserAction extends ActionSupport implements SessionAware{
 	
 	
 	//view own account
-	public String execute(){
+	public String execute() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return null;
 		
 		UserAccess access = new UserAccess();
-		try{
-			user = access.read( email );
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
-		
+		user = access.read( email );
+
 		return SUCCESS;
 	}
 	
 	
-	public String update(){	
+	public String update() throws Exception{	
 		String email = (String) session.get("email");
 		if ( email == null)
 			return null;
 		
 		UserAccess access = new UserAccess();
-		try{
-			if ( access.userNameExists(user.getUserName(), user.getEmail()) ){
-				addFieldError("userName", "Username already exists.");
-				return INPUT;
-			}
-			
-			access.update( user );
-			
-		}catch(Exception ex){
-			ex.printStackTrace();
+		if ( access.userNameExists(user.getUserName(), user.getEmail()) ){
+			addFieldError("userName", "Username already exists.");
+			return INPUT;
 		}
-
+		
+		access.update( user );
+			
     	//session
 		session.put("userName", user.getUserName());
 		

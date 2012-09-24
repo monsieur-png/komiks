@@ -1,0 +1,41 @@
+<!DOCTYPE validators PUBLIC "-//OpenSymphony Group//XWork Validator 1.0.2//EN"
+		"http://www.opensymphony.com/xwork/xwork-validator-1.0.2.dtd">
+<validators>
+
+	
+	<!-- user name -->
+	<validator type="requiredstring" short-circuit="true">
+		<param name="fieldName">user.userName</param>
+		<param name="trim">true</param>
+		<message>User name is required.</message>
+	</validator>
+	
+	<validator type="stringlength">
+		<param name="fieldName">user.userName</param>
+		<param name="minLength">6</param>
+		<param name="trim">true</param>
+		<message>User name is too short. At least ${minLength} characters.</message>
+	</validator>
+	
+	<validator type="regex">
+		<param name="fieldName">user.userName</param>
+		<param name="expression">[a-z0-9]+</param>
+		<message>User Name is invalid. Allowed characters are [a-z0-9]</message>
+	</validator>
+	
+		
+	<!-- full name -->
+	<validator type="requiredstring" short-circuit="true">
+		<param name="fieldName">user.fullName</param>
+		<param name="trim">true</param>
+		<message>Full name is required.</message>
+	</validator>
+	
+	<validator type="stringlength">
+		<param name="fieldName">user.fullName</param>
+		<param name="minLength">6</param>
+		<param name="trim">true</param>
+		<message>Full name is too short. At least ${minLength} characters.</message>
+	</validator>
+	
+</validators>

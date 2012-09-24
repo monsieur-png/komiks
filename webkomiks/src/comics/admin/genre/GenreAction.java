@@ -35,7 +35,7 @@ public class GenreAction extends ActionSupport {
 	}
 	
 	
-	public String add(){
+	public String add() throws Exception{
 		GenreAccess access = new GenreAccess();
 
 		if ( access.genreExists( genre.getGenre()) ){
@@ -51,74 +51,57 @@ public class GenreAction extends ActionSupport {
 	}
 	
 	
-	public String view(){
+	public String view() throws Exception{
 		GenreAccess access = new GenreAccess();
 		
-		try{
-			genre = access.read( genreName );
-			if (genre == null){
-				addActionError("genre does not exist.");
-				return GENRE_LIST;
-			}
-			
-		}catch(Exception ex){
-			ex.printStackTrace();
+		genre = access.read( genreName );
+		if (genre == null){
+			addActionError("genre does not exist.");
+			return GENRE_LIST;
 		}
 		
 		return SUCCESS;
 	}
 	
 	
-	public String list(){
-		GenreAccess access = new GenreAccess();
-		try{
-			list = access.list();
-			
-		} catch(Exception ex){
-			ex.printStackTrace();
-		}
+	public String list() throws Exception{
 		
+		GenreAccess access = new GenreAccess();
+		list = access.list();
+			
 		return SUCCESS;
 	}
 	
 	
-	public String update(){
+	public String update() throws Exception{
 		
 		GenreAccess access = new GenreAccess();
-		try{
-			access.update(genre);
-		} catch(Exception ex){
-			ex.printStackTrace();
-		}
+		access.update(genre);
 		
 		addActionMessage( genre.getGenre() + " genre successfully updated.");
 		return SUCCESS;
 	}
 	
 	
-	public String delete(){
+	public String delete() throws Exception{
 		GenreAccess access = new GenreAccess();
 		
-		try{
-			genre = access.read( genreName );
-			if (genre == null){
-				addActionError( "genre does not exist" );
-				return GENRE_LIST;
-				
-			}else if (genre.getCount() > 0){
-				addActionError( genre.getGenre() + " genre can't be deleted" );
-				return GENRE_LIST;
-				
-			} else{
-				access.delete( genreName );
-			}
+		genre = access.read( genreName );
+		if (genre == null){
+			addActionError( "genre does not exist" );
+			return GENRE_LIST;
 			
-		} catch(Exception ex){
-			ex.printStackTrace();
+		}else if (genre.getCount() > 0){
+			addActionError( genre.getGenre() + " genre can't be deleted" );
+			return GENRE_LIST;
+			
+		} else{
+			access.delete( genreName );
 		}
-		
+			
 		addActionMessage( genre.getGenre() + " genre successfully deleted");
 		return SUCCESS;
 	}
+	
 	
 }

@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	var actionArr = ['/comics/nextList', '/comics/nextListByUser'];
+	var actionArr = ['/comics/nextList', '/comics/nextListByUser', '/comics/nextListByGenre'];
 	var nextListIndex = +$('#nextListAction').val();
 	var nextCursor = +$('#nextCursor').val();
 	var data = {};
@@ -7,6 +7,9 @@ $(document).ready(function(){
 	switch( nextListIndex ){
 	case 1:
 		data['userName'] = $('#userName').val();
+		break;
+	case 2:
+		data['genreName'] = $('#genreName').val();
 		break;
 	}
 
@@ -53,7 +56,7 @@ $(document).ready(function(){
 					
 					$title.insertAfter( $('div.comicsItem:last'));
 					$div.insertAfter( $title );
-					//$div.insertAfter( $('div.comicsItem:last'));
+
 				});
 
 				nextCursor = data['nextCursor'];

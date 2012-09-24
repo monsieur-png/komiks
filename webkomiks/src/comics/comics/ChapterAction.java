@@ -1,13 +1,13 @@
 package comics.comics;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.struts2.interceptor.SessionAware;
 
 import com.opensymphony.xwork2.ActionSupport;
-import comics.util.BlobUtil;
+
 
 public class ChapterAction extends ActionSupport implements SessionAware{
 
@@ -18,6 +18,7 @@ public class ChapterAction extends ActionSupport implements SessionAware{
 	private Chapter chapter = null;
 	private List<String> pageBlobKeys = null;
 	private List<String> allPageBlobKeys = null;
+	private List<String> pageKeys = null;
 	
 	public Map<String, Object> getSession() {
 		return session;
@@ -53,9 +54,16 @@ public class ChapterAction extends ActionSupport implements SessionAware{
 	public void setAllPageBlobKeys(List<String> allPageBlobKeys) {
 		this.allPageBlobKeys = allPageBlobKeys;
 	}
+		
+	public List<String> getPageKeys() {
+		return pageKeys;
+	}
+	public void setPageKeys(List<String> pageKeys) {
+		this.pageKeys = pageKeys;
+	}
 	
 	
-	public String add(){
+	public String add() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return LOGIN; 
@@ -68,48 +76,41 @@ public class ChapterAction extends ActionSupport implements SessionAware{
 	
 	
 	//view a chapter for update
-	public String view(){
+	public String view() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return LOGIN;
 		
 		ComicsAccess access = new ComicsAccess();
-		try {
-			chapter = access.readChapter(key);
-			if ( ! chapter.getComics().getUser().getEmail().equals( email ) )
-				return NONE;
+
+		chapter = access.readChapter(key);
+		if ( ! chapter.getComics().getUser().getEmail().equals( email ) )
+			return NONE;
 			
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		return SUCCESS;
+	}
+	
+	
+	public String save() throws Exception{
+		String email = (String) session.get("email");
+		if ( email == null)
+			return LOGIN;
+
+		//if all pages were removed
+		if ( pageBlobKeys == null ){
+			pageBlobKeys = new ArrayList<String>();
+			pageKeys = new ArrayList<String>();
 		}
 
-		return SUCCESS;
-	}
-	
-	
-	public String save(){
-		String email = (String) session.get("email");
-		if ( email == null)
-			return LOGIN;
-		
 		ComicsAccess access = new ComicsAccess();
-		access.saveChapter(email, key, pageBlobKeys);
-		
-		//remove blob of deleted pages
 		allPageBlobKeys.removeAll( pageBlobKeys );
-		for( String blobKey: allPageBlobKeys )
-			BlobUtil.deleteBlob( blobKey );
+		access.saveChapter(email, key, pageKeys, allPageBlobKeys);
 
-		
 		return SUCCESS;
 	}
 	
 	
-	public String delete(){
+	public String delete() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return LOGIN;
@@ -121,14 +122,13 @@ public class ChapterAction extends ActionSupport implements SessionAware{
 	}
 	
 	
-	public String update(){
+	public String update() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return LOGIN;
 		
 		ComicsAccess access = new ComicsAccess();
 		access.updateChapter(email, key, chapter.getTitle());
-		
 		
 		return SUCCESS;
 	}

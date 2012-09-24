@@ -1,7 +1,7 @@
 package comics.comics;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,7 +11,6 @@ import com.google.appengine.api.search.Cursor;
 import com.google.appengine.api.search.Results;
 import com.google.appengine.api.search.ScoredDocument;
 import com.opensymphony.xwork2.ActionSupport;
-
 import comics.admin.genre.GenreAccess;
 import comics.search.SearchAccess;
 import comics.util.BlobUtil;
@@ -27,6 +26,7 @@ public class ComicsAction extends ActionSupport implements SessionAware{
 	private String key = null;
 	private String chapterKey = null;
 	private Chapter chapter = null;
+	private List<String> chKeys = null;					//chapter keys
 	
 	public Map<String, Object> getSession() {
 		return session;
@@ -77,83 +77,73 @@ public class ComicsAction extends ActionSupport implements SessionAware{
 	public void setChapter(Chapter chapter) {
 		this.chapter = chapter;
 	}
-	
-
-	//list new comics
-	public String list(){
-
-		SearchAccess access = new SearchAccess();
-		Cursor cursor = null;
-		Results<ScoredDocument> results = null;
 		
-		try{
-			cursor = Cursor.newBuilder().build();
-			results = access.searchComics(null, cursor);
-			
-			list = new ArrayList<Comics>();
-			Comics comics = null;
-			ComicsAccess comicsAccess = new ComicsAccess();
-			for (ScoredDocument document : results) {
-				comics = comicsAccess.read( document.getId() );
-				list.add( comics );
-			}
-			
-			cursor = results.getCursor();
-			if (cursor != null)
-				nextCursor = cursor.toWebSafeString();
+	public List<String> getChKeys() {
+		return chKeys;
+	}
+	public void setChKeys(List<String> chKeys) {
+		this.chKeys = chKeys;
+	}
+	
+	
+	//list new comics
+	public String list() throws Exception{
+
+		SearchAccess access = new SearchAccess();
+		Cursor cursor = null;
+		Results<ScoredDocument> results = null;
+
+		cursor = Cursor.newBuilder().build();
+		results = access.searchComics(null, cursor);
+		
+		list = new ArrayList<Comics>();
+		Comics comics = null;
+		ComicsAccess comicsAccess = new ComicsAccess();
+		for (ScoredDocument document : results) {
+			comics = comicsAccess.read( document.getId() );
+			list.add( comics );
 		}
-		catch(Exception ex){
-			ex.printStackTrace();
-		}
+		
+		cursor = results.getCursor();
+		if (cursor != null)
+			nextCursor = cursor.toWebSafeString();
+
 
 		return SUCCESS;
 	}
 	
 	
 	//list new comics
-	public String nextList(){
+	public String nextList() throws Exception{
 		SearchAccess access = new SearchAccess();
 		Cursor cursor = null;
 		Results<ScoredDocument> results = null;
 
-		try{
-			cursor = Cursor.newBuilder().build( nextCursor );
-			results = access.searchComics(null, cursor);
-			
-			list = new ArrayList<Comics>();
-			Comics comics = null;
-			ComicsAccess comicsAccess = new ComicsAccess();
-			for (ScoredDocument document : results) {
-				comics = comicsAccess.read(document.getId());
-				comics.setCoverBlobKey(BlobUtil.servingUrl(comics.getCoverBlobKey()) + "=s700");
-				list.add( comics );
-			}
-			
-			cursor = results.getCursor();
-			nextCursor = (cursor == null)? null : cursor.toWebSafeString();
-			
+		cursor = Cursor.newBuilder().build( nextCursor );
+		results = access.searchComics(null, cursor);
+		
+		list = new ArrayList<Comics>();
+		Comics comics = null;
+		ComicsAccess comicsAccess = new ComicsAccess();
+		for (ScoredDocument document : results) {
+			comics = comicsAccess.read(document.getId());
+			comics.setCoverBlobKey(BlobUtil.servingUrl(comics.getCoverBlobKey()) + "=s700");
+			list.add( comics );
 		}
-		catch(Exception ex){
-			ex.printStackTrace();
-		}
-
+		
+		cursor = results.getCursor();
+		nextCursor = (cursor == null)? null : cursor.toWebSafeString();
+			
 		return SUCCESS;
 	}
 	
 	
-	public String read(){
+	public String read() throws Exception{
 		ComicsAccess access = new ComicsAccess();
 		
-		try {
-			comics = access.readComics(comics.getRandom(), comics.getUrl());
-			access.addViews( comics.getKey() );
-			
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	
+		comics = access.readComics(comics.getRandom(), comics.getUrl());
+		access.addViews( comics.getKey() );
+
 		if ( comics == null)
 			return NONE;
 		
@@ -162,30 +152,21 @@ public class ComicsAction extends ActionSupport implements SessionAware{
 	
 	
 	//view, carousel
-	public String readChapter(){
+	public String readChapter() throws Exception{
 		ComicsAccess access = new ComicsAccess();
-		
-		try {
 	
-			if ( chapterKey == null || chapterKey.equals("cover"))
-				comics = access.read( key );
-			else{
-				comics = access.read( key );
-				chapter = access.readChapter( chapterKey );
-			}
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if ( chapterKey == null || chapterKey.equals("cover"))
+			comics = access.read( key );
+		else{
+			comics = access.read( key );
+			chapter = access.readChapter( chapterKey );
 		}
-		
+
 		return SUCCESS;
 	}
 	
 	
-	public String myComics(){
+	public String myComics() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return LOGIN;
@@ -198,31 +179,22 @@ public class ComicsAction extends ActionSupport implements SessionAware{
 	
 	
 	//view comics for update by author
-	public String view(){
+	public String view() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return LOGIN;
 	
-
 		ComicsAccess access = new ComicsAccess();
-		try {
-			comics = access.read( key );
-			if ( ! comics.getUser().getEmail().equals( email ))
-				return NONE;
+		comics = access.read( key );
+		if ( ! comics.getUser().getEmail().equals( email ))
+			return NONE;
 			
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		return SUCCESS;
 	}
 	
 	
-	public String delete(){
+	public String delete() throws Exception{
 		String email = (String) session.get("email");
 		if ( email == null)
 			return LOGIN;
@@ -234,6 +206,21 @@ public class ComicsAction extends ActionSupport implements SessionAware{
 		GenreAccess genreAccess = new GenreAccess();
 		genreAccess.updateCount(genreSet, - 1 );
     	
+		return SUCCESS;
+	}
+
+	
+	//save chapter order
+	public String save() throws Exception{
+		String email = (String) session.get("email");
+		if ( email == null)
+			return LOGIN;
+		
+		ComicsAccess access = new ComicsAccess();
+		for (int i = 0; i < chKeys.size(); i++){
+			access.updateChapterOrder(email, chKeys.get(i), i);
+		}
+
 		return SUCCESS;
 	}
 	

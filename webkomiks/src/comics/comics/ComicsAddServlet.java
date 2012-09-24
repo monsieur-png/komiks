@@ -45,9 +45,8 @@ public class ComicsAddServlet extends HttpServlet {
     	}
     	
     	
-    	
- 	HttpSession session = req.getSession(false);
-	if( req.isRequestedSessionIdValid() )	{
+	 	HttpSession session = req.getSession(false);
+		if( req.isRequestedSessionIdValid() )	{
             
             if ( session.getAttribute("email") == null){
             	//delete blobs

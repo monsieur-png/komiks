@@ -13,6 +13,29 @@
 	<link rel="stylesheet" href="/bootstrap/css/menu.css" />
 	<link rel="stylesheet" href="/css/main.css" />
 	
+	<style type="text/css">
+		#listChapters tbody tr{
+			cursor: move;
+		}
+		
+		table { counter-reset: row }
+tbody tr { counter-increment: row }
+tbody tr:before {
+    content: counter(row);
+    display: table-cell;
+    vertical-align: middle;
+}
+
+tfoot tr:BEFORE {
+	content: none;
+}
+
+		form .buttons{
+			text-align: center;
+		}
+
+	</style>
+	
 </head>
 <body>
 	<s:include value="/content/menu1.jsp"/>
@@ -34,30 +57,39 @@
 	 
 				<div class="tab-content">
 					<div class="tab-pane active" id="chapters">
-						<table id="listChapters" class="table table-hover">
-					  		<thead>
-					  			<tr>
-					  				<td>#</td>
-					  				<td>Title</td>
-					  				<td>Pages</td>
-					  				<td>Action</td>
-					  			</tr>
-					  		</thead>
-					  		<tbody>
-					  			<s:iterator value="comics.chapters" status="stat">
-					  				<tr>
-					  					<td><s:property value="#stat.index + 1"/></td>
-					  					<td><a href="/chapter/update/<s:property value="@comics.util.Url@key(key)"/>"><s:property value="title"/></a></td>
-					  					<td><s:property value="pageCount"/></td>
-					  					<td>
-					  						<a href="/chapter/update/<s:property value="@comics.util.Url@key(key)"/>">update</a>
-					  						<a href="/chapter/delete/<s:property value="@comics.util.Url@key(key)"/>">delete</a>
-					  					</td>
-					  				</tr>
-					  			</s:iterator>
-					  			<tr><td> &nbsp;</td><td> </td><td> </td><td> </td></tr>
-					  		</tbody>
-						</table>
+						<s:form action="save" namespace="/comics" theme="simple">
+							<input type="hidden" name="key" value="<s:property value="@comics.util.Url@key(comics.key)"/>"/>
+							<table id="listChapters" class="table table-hover">
+						  		<thead>
+						  			<tr>
+						  				<td> </td>
+						  				<td>Title</td>
+						  				<td>Pages</td>
+						  				<td>Action</td>
+						  			</tr>
+						  		</thead>
+						  		<tbody>
+						  			<s:iterator value="comics.chapters" status="stat">
+						  				<tr>
+						  					<td><input type="hidden" name="chKeys" value="<s:property value="@comics.util.Url@key(key)" />" /><a href="/chapter/update/<s:property value="@comics.util.Url@key(key)"/>"><s:property value="title"/></a></td>
+						  					<td><s:property value="pageCount"/></td>
+						  					<td>
+						  						<a href="/chapter/update/<s:property value="@comics.util.Url@key(key)"/>">update</a>
+						  						<a href="/chapter/delete/<s:property value="@comics.util.Url@key(key)"/>">delete</a>
+						  					</td>
+						  				</tr>
+						  			</s:iterator>
+						  			
+						  			<s:if test="comics.chapters.size == 0">
+						  					<tr><td> &nbsp; </td><td> </td><td> </td></tr>
+						  			</s:if>
+						  		</tbody>
+						  		
+							</table>
+							<s:if test="comics.chapters.size != 0">
+								<div class="span11 buttons"><s:submit cssClass="btn" value="save"/></div>
+							</s:if>
+						</s:form>
 				  </div>
 				  
 				<div class="tab-pane" id="addChapter">
@@ -138,12 +170,21 @@
 	
 	<script type="text/javascript" src="/js/jquery/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
-	
+
+	<script type="text/javascript" src="/js/jquery/ui/jquery.ui.core.min.js"></script>
+	<script type="text/javascript" src="/js/jquery/ui/jquery.ui.widget.min.js"></script>
+	<script type="text/javascript" src="/js/jquery/ui/jquery.ui.mouse.min.js"></script>
+	<script type="text/javascript" src="/js/jquery/ui/jquery.ui.sortable.min.js"></script>
+		
 	<script type="text/javascript">
 		$('#chapterTab a').click(function (e) {
 			e.preventDefault();
 			$(this).tab('show');
 		})
+		
+		$(function() {
+			$( '#listChapters tbody' ).sortable({ cursor: 'move' });
+		});
 	</script>
 	
 </body>

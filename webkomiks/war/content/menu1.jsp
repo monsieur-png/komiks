@@ -21,7 +21,7 @@
               		<a data-toggle="dropdown" class="dropdown-toggle" href="#">Genre<b class="caret"></b></a>
 	            	<ul class="dropdown-menu">
 	            		<s:iterator var="genre" value="@comics.admin.genre.GenreAccess@genreList()">
-							<li><a href="#"><s:property value="genre"/></a></li>
+							<li><a href="/genre/<s:property value="genre"/>"><s:property value="genre"/></a></li>
 						</s:iterator>
 	           		</ul>
 				</li>

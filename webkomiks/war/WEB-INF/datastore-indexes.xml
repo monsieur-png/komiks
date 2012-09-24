@@ -2,12 +2,14 @@
 
 <datastore-indexes autoGenerate="true">
     
-	<!-- Used 23 times in query history -->
+    <datastore-index kind="Comics" ancestor="true" source="auto">
+        <property name="dateAdded" direction="desc"/>
+    </datastore-index>
+    
     <datastore-index kind="Chapter" ancestor="true" source="auto">
         <property name="order" direction="asc"/>
     </datastore-index>
 
-    <!-- Used 26 times in query history -->
     <datastore-index kind="Page" ancestor="true" source="auto">
         <property name="order" direction="asc"/>
     </datastore-index>

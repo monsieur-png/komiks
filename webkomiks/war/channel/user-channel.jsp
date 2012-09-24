@@ -17,7 +17,7 @@
 <body>
 	<input id="nextListAction" type="hidden" value="1" />
 	<s:hidden id="userName" name="user.userName"/>
-
+	
 	<div class="container">
 		<div class="row">
 			<s:include value="/content/menu1.jsp" />

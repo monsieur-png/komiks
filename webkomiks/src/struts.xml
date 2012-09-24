@@ -17,11 +17,22 @@
 	<constant name="struts.enable.SlashesInActionNames" value="true"/>
 	<constant name="struts.mapper.alwaysSelectFullNamespace" value="false"/>
 	
-	
-	<package name="comics" namespace="/" extends="struts-default">
-	    
+
+	<package name="comics" namespace="/" extends="struts-default">	    
+		<interceptors>
+			<interceptor-stack name="appDefaultStack">
+				<interceptor-ref name="defaultStack">
+					<param name="exception.logEnabled">true</param>
+					<param name="exception.logLevel">ERROR</param>
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<default-interceptor-ref name="appDefaultStack" />
+
 		<!-- global result -->
 		<global-results>
+		    <result name="unhandledExceptionHandler">/error/unhandled-exception.jsp</result>
 			<result name="login" type="redirectAction">
 				<param name="namespace">/comics</param>
             	<param name="actionName">list</param>
@@ -31,6 +42,10 @@
             	<param name="actionName">list</param>
 			</result>
 		</global-results>
+		
+		<global-exception-mappings>
+			<exception-mapping exception="java.lang.Exception" result="unhandledExceptionHandler"/>
+		</global-exception-mappings>
 		
 		
 	    <!-- go to admin console -->
@@ -75,6 +90,16 @@
 		<action name="update/*" class="comics.comics.ComicsAction" method="view">
 		    <param name="key">{1}</param>
 		    <result>/comics/comics-chapters.jsp</result>
+		</action>
+		
+		<!-- save order of chapters-->
+		<action name="save" class="comics.comics.ComicsAction" method="save">
+			<result type="redirectAction">
+			    <param name="parse">true</param>
+			    <param name="key">${key}</param>
+			    <param name="actionName">update</param>
+				<param name="namespace">/comics</param>    
+			</result>
 		</action>
 			
 		<!-- comics by a logged in user -->
@@ -157,10 +182,19 @@
 	
 	
 	<!-- user channel -->
-	<package name="channel" namespace="/user" extends="comics">
-		<action name="*" class="comics.channel.ChannelAction">
+	<package name="userChannel" namespace="/user" extends="comics">
+		<action name="*" class="comics.channel.UserChannelAction">
 		    <param name="userName">{1}</param>
-		    <result>/channel/channel.jsp</result>
+		    <result>/channel/user-channel.jsp</result>
+		</action>
+	</package>
+	
+	
+	<!-- genre channel -->
+	<package name="genreChannel" namespace="/genre" extends="comics">
+		<action name="*" class="comics.channel.GenreChannelAction">
+		    <param name="genreName">{1}</param>
+		    <result>/channel/genre-channel.jsp</result>
 		</action>
 	</package>
 	
@@ -170,14 +204,21 @@
  	    <!-- new comics at home page-->
 		<action name="nextList" class="comics.comics.ComicsAction" method="nextList">
 			<result type="json">
-				<param name="excludeProperties">comics, key, chapterKey, chapter</param>
+				<param name="excludeProperties">key, chapterKey, chapter</param>
 		    </result>
 		</action>
 		
 		<!-- comics by a user -->
-		<action name="nextListByUser" class="comics.channel.ChannelAction" method="nextList">
+		<action name="nextListByUser" class="comics.channel.UserChannelAction" method="nextList">
 			<result type="json">
-				<param name="excludeProperties">comics,user,userName</param>
+				<param name="excludeProperties">user, userName</param>
+		    </result>
+		</action>
+		
+		<!-- comics by genre -->
+		<action name="nextListByGenre" class="comics.channel.GenreChannelAction" method="nextList">
+			<result type="json">
+				<param name="excludeProperties">genre, userName</param>
 		    </result>
 		</action>
 	</package>

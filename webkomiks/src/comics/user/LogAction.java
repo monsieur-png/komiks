@@ -31,7 +31,7 @@ public class LogAction extends ActionSupport implements SessionAware{
 	
 	
 	//google login
-	public String execute(){
+	public String execute() throws Exception{
 	    UserService userService = UserServiceFactory.getUserService();
 	    com.google.appengine.api.users.User googleUser = userService.getCurrentUser();
 	    
@@ -44,8 +44,8 @@ public class LogAction extends ActionSupport implements SessionAware{
 	    
 	    user = access.read(email);
 	    if ( user == null ){
-	    	String userName = googleUser.getNickname().replace(".", "") + (new Random().nextInt(100000));
-	    	user = new User( googleUser.getEmail(), userName);
+	    	String userName = googleUser.getNickname().toLowerCase().replace(".", "") + (new Random().nextInt(100000));
+	    	user = new User( googleUser.getEmail(), userName, googleUser.getNickname());
 	    	access.add( user );
 	    	
 	    	//session

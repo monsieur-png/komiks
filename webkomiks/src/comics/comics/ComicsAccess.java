@@ -275,7 +275,7 @@ public class ComicsAccess {
 	}
 	
 	
-	public void saveChapter(String email, String key, List<String> pages) throws PersistenceException{
+	public void saveChapter(String email, String key, List<String> pagesKey, List<String> removedPageBlobKeys) throws PersistenceException{
 		EntityManager em = EMF.get().createEntityManager();
 		EntityTransaction tx = null;
 		Chapter chapter = null;
@@ -286,15 +286,21 @@ public class ComicsAccess {
 			chapter = em.find(Chapter.class, KeyFactory.stringToKey(key) );
 			String ownerEmail = new String( chapter.getComics().getUser().getEmail() );
 			if ( ownerEmail.equals( email ) ){			
-				chapter.setPages( null );
-				chapter.setPageCount( 0 );
+				chapter.setPageCount( pagesKey.size() );
 			}
+			
 			tx.commit();
 
 			if ( ownerEmail.equals( email ) ){		
-				for(String page: pages){
-					addPage(email, new Page(page), key);
+				for (int i=0; i < pagesKey.size(); i++){
+					updatePage(pagesKey.get(i), i);
 				}
+				
+				for (String pageBlobKey: removedPageBlobKeys){
+					deletePage( pageBlobKey );
+					BlobUtil.deleteBlob( pageBlobKey );
+				}
+				
 			}
 			
 		}finally{
@@ -368,6 +374,33 @@ public class ComicsAccess {
 	}
 	
 	
+	public Chapter updateChapterOrder(String email, String key, int order) throws PersistenceException {
+		EntityManager em = EMF.get().createEntityManager();
+		EntityTransaction tx = null;
+		Chapter chapter = null;
+		try{
+			tx = em.getTransaction();
+			tx.begin();
+
+			chapter = em.find(Chapter.class, KeyFactory.stringToKey(key) );
+			if ( chapter.getComics().getUser().getEmail().equals( email ) )
+				chapter.setOrder( order );
+			
+			tx.commit();
+		}finally{
+			try {
+				if (tx != null && tx.isActive()) {
+					tx.rollback();
+				}
+			} finally {
+				em.close();
+			}
+		}
+				
+		return chapter;
+	}
+	
+	
 	//delete a comics
 	//return genrae for updating genre counts
 	public Set<String> delete(String email, String key) throws PersistenceException{
@@ -413,5 +446,61 @@ public class ComicsAccess {
 		
 		return genreSet;
 	}
+	
+	
+	public Page updatePage(String pageBlobKey, int order) throws PersistenceException{
+		EntityManager em = EMF.get().createEntityManager();
+		EntityTransaction tx = null;
+		Page emPage = null;
+		try{
+			tx = em.getTransaction();
+			tx.begin();
+			
+			emPage = em.find(Page.class, KeyFactory.stringToKey(pageBlobKey) );
+			emPage.setOrder(order);
+			
+			tx.commit();
+		}finally{
+			try {
+				if (tx != null && tx.isActive()) {
+					tx.rollback();
+				}
+			} finally {
+				em.close();
+			}
+		}
+
+		return emPage;
+	}
+	
+	
+	public boolean deletePage(String pageBlobKey) throws NoResultException {
+		EntityManager em = EMF.get().createEntityManager();
+		EntityTransaction tx = null;
+
+		int count = 0;
+		try{
+			tx = em.getTransaction();
+			tx.begin();
+			
+			Query q = em.createQuery("DELETE FROM Page p WHERE p.pageBlobKey = :pbk");
+			q.setParameter("pbk", pageBlobKey);
+			count = q.executeUpdate();
+
+			tx.commit();
+			
+		} finally{
+			try {
+				if (tx != null && tx.isActive()) {
+					tx.rollback();
+				}
+			} finally {
+				em.close();
+			}
+		}
+
+		return count > 0;
+	}
+	
 	
 }

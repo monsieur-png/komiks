@@ -24,6 +24,9 @@
 		.close{
 			color: red;
 		}
+		#pagesThumbnails div{
+			cursor: move;
+		}
 	</style>
 	
 </head>
@@ -57,12 +60,15 @@
 									<div>
 										<a href="#" class="close" data-dismiss="alert">×</a>
 										<input type="hidden" name="pageBlobKeys" value="<s:property value="pageBlobKey" />" />
+										<input type="hidden" name="pageKeys" value="<s:property value="@comics.util.Url@key(key)" />" />
+										
 										<img class="img-polaroid" src="<s:property value="@comics.util.BlobUtil@servingUrl(pageBlobKey)"/>=s150-c">
 									</div>
 								</s:iterator>
 							</div>
-							
-							<div class="span11 buttons"><s:submit cssClass="btn" value="save"/></div>
+							<s:if test="chapter.pages.size != 0">
+								<div class="span11 buttons"><s:submit cssClass="btn" value="save"/></div>
+							</s:if>
 						</s:form>
 					</div>
 				  
@@ -127,7 +133,7 @@
 		})
 		
 		$(function() {
-			$( '#pagesThumbnails' ).sortable();
+			$( '#pagesThumbnails' ).sortable({ cursor: 'move' });
 		});
 		
 	</script>
